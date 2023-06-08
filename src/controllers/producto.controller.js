@@ -24,7 +24,27 @@ async function GetAllProductos(req, res) {
 }
 
 // Traer producto por ID
+async function GetProductById(req, res) {
+  console.log(req);
+  const { id } = req.params;
 
+  try {
+    const producto = await Productoschema.findById(id);
+    if (!producto) {
+      return res.status(404).json({
+        ok: false,
+        message: 'Producto no encontrad'
+      });
+    }
+    res.json(producto);
+  } catch (error) {
+    console.error('Error al obtener el producto 1:', error);
+    res.status(500).json({
+      ok: false,
+      message: 'Error al obener el producto 2'
+    });
+  }
+}  
 
 // Guardar un nuevo producto en la base de dato
 async function AddProductos(req, res) {
@@ -85,4 +105,4 @@ async function DeleteProducto(req, res) {
 }
 
 
-export {GetAllProductos, AddProductos, UpdateProducto, DeleteProducto};
+export {GetAllProductos, GetProductById, AddProductos, UpdateProducto, DeleteProducto};
