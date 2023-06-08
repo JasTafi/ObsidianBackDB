@@ -15,11 +15,9 @@ dotenv.config();
 
 connect();
 
-app.listen(process.env.PORT || 1000, () => {
-  console.log('Escuchando el puero 1000');
+app.listen(parseInt(process.env.PORT), () => {
+  console.log('"Servidor ejecutandose en el puerto: " + process.env.PORT');
 });
 
-
-
-app.use('/api', productoRoutes);
-app.use('/api', userRouter);
+app.use('/api', productoRoutes); // Ruta base para el CRUD de los productos
+app.use('/api', userRouter); // Ruta base para el CRUD de los usuarios

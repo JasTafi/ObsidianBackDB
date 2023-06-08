@@ -13,7 +13,7 @@ function Authenticate(req, res, next){
     });
 
 // Si el token existe, lo verivico
-    jwt.verify(token, 'mi secreto', (error, payload) => {
+    jwt.verify(token, process.env.SECRET, (error) => {
       if(error){
         return res.status(404).json({
           ok: false,

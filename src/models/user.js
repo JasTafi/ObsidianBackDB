@@ -29,9 +29,22 @@ const userScheme = new Schema({
   ],
 });
 
+// Sobrescribe el json que devuelve mongosse, y le pido que no devuelva estas propiedades
+userScheme.set('toJSON', {
+  transform: function (doc, ret) {
+    ret.id = ret._id;
+    delete ret.passwordHash;
+    delete ret._id;
+    delete ret.favoritos;
+    delete ret.__v;
+    delete ret.bloqueado;
+    delete ret.administrador;
+  }
+})
+
 // Genero el token de acceso (mi secreto)
 userScheme.methods.generateAccesToken = function () {
-  const  token = jwt.sign({ _id: this._id }, 'mi secreto');
+  const  token = jwt.sign({ _id: this._id }, process.env.SECRET);
   return token;
 };
 

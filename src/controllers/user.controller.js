@@ -8,6 +8,7 @@ const base_error_objet = {
   error_msg: Login_Error_Message,
 }
 
+// Agrega un usuario a la base de dato
 async function AddUser(req, res) {
   try {
     const { email, password, photoUrl} = req.body;
@@ -34,6 +35,7 @@ async function AddUser(req, res) {
   }
 };
 
+// Comprueva el mail y password del usuario que se esta logeando
 async function Login(req, res) {
   try {
     const { email, password } = req.body;

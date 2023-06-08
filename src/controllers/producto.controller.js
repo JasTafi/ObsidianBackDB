@@ -1,6 +1,6 @@
 import Productoschema from '../models/producto';
 
-const maxElements = 4;
+const maxElements = 15;
 //Segmento la responsabilidad de conexion a la base de datos de mi index
 
 //Trae todos los productos de la base de dato 
@@ -22,6 +22,9 @@ async function GetAllProductos(req, res) {
     });
   }
 }
+
+// Traer producto por ID
+
 
 // Guardar un nuevo producto en la base de dato
 async function AddProductos(req, res) {
