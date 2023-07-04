@@ -5,7 +5,7 @@ import userScheme from "../models/user";
 const Login_Error_Message = "El usuario o la contraseña no coincide"
 const base_error_objet = {
   ok: false,
-  error_msg: Login_Error_Message,
+  message: 'Credenciales inválidas',
 }
 
 // Agrega un usuario a la base de dato
@@ -39,7 +39,7 @@ async function AddUser(req, res) {
 async function Login(req, res) {
   try {
     const { email, password } = req.body;
-    const userLogged = await userScheme.findOne({ email }).populate();
+    const userLogged = await userScheme.findOne({ email });
 
     if (!userLogged) return res.status(400).json(base_error_objet);
 

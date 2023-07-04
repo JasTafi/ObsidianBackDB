@@ -3,12 +3,13 @@ import { AddUser, Login, AddFavoriteProduct, GetFavoriteProduct } from "../contr
 import { Authenticate } from "../helpers/token.helpers";
 
 const router = express.Router();
+router.use(express.json());
 
 //Agrega el registro de un nuevo usuario
 router.post("/user/add", AddUser); 
 
 //Logea un usuario Registrado
-router.get("/user/login", Login); 
+router.post("/user/login", Login); 
 
 //Agrega un producto a la lista de favoritos de un usuario
 router.post("/user/favorites", Authenticate, AddFavoriteProduct);
