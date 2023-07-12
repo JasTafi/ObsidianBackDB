@@ -1,5 +1,5 @@
 import express from "express";
-import { AddUser, Login, AddFavoriteProduct, GetFavoriteProduct } from "../controllers/user.controller"
+import { AddUser, Login, AddFavoriteProduct, GetFavoriteProduct, DeleteFavoriteById } from "../controllers/user.controller"
 import { Authenticate } from "../helpers/token.helpers";
 
 const router = express.Router();
@@ -16,5 +16,8 @@ router.post("/user/favorites", Authenticate, AddFavoriteProduct);
 
 // Muestra la lista de productos favoritos de un usuario
 router.get("/user/favorites/:userId", Authenticate, GetFavoriteProduct); 
+
+// Borra un producto por id de la lista de favorito
+router.put("/user/favorites/:userId", Authenticate, DeleteFavoriteById);
 
 export default router;

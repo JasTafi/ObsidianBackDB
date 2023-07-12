@@ -131,4 +131,37 @@ async function GetFavoriteProduct(req, res) {
   }
 }
 
-export { AddUser, Login, AddFavoriteProduct, GetFavoriteProduct };
+// Borrar un producto de la lista de favoritos po id
+async function DeleteFavoriteById(req, res) {
+  try {
+    const { userId } = req.params;
+    const { productId } = req.body;
+    console.log(userId);
+    console.log(productId);
+//Verifico si el usuario y el producto existe
+    const user = await userScheme.findById(userId);
+    if(!user || !user.favoritos.includes(productId)) {
+      return res.status(404).json({
+        ok: false,
+        error_msg: 'Usuario o producto no encontrado',
+      });
+    }
+
+// Elimina el producto de la lista de favoritos del usuario
+    user.favoritos = user.favoritos.filter((favorite) => favorite.toString() !== productId);
+    await user.save();
+
+    return res.status(200).json({
+      ok: true,
+      message: 'Producto eliminado de favoritos'
+    });
+  } catch (error) {
+    return res.status(500).json({
+      ok: false,
+      message: 'Error al eliminar el producto de favoritos',
+      rerror: error.message,
+    });
+  }
+}
+
+export { AddUser, Login, AddFavoriteProduct, GetFavoriteProduct, DeleteFavoriteById };
