@@ -16,7 +16,7 @@ router.post('/accesorio', Authenticate, AddProductos)
   //modificar un producto por id
 router.put('/accesorio/:id', Authenticate, UpdateProducto);
 
-  //borrar una tarea or id
+  //borrar un producto por id
 router.delete('/accesorio/:id',Authenticate, DeleteProducto);
 
 export default router
