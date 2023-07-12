@@ -136,8 +136,6 @@ async function DeleteFavoriteById(req, res) {
   try {
     const { userId } = req.params;
     const { productId } = req.body;
-    console.log(userId);
-    console.log(productId);
 //Verifico si el usuario y el producto existe
     const user = await userScheme.findById(userId);
     if(!user || !user.favoritos.includes(productId)) {
