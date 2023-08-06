@@ -62,6 +62,23 @@ async function Login(req, res) {
   }
 };
 
+//modificar usuario
+async function UpdateUser(req, res) {
+  const { id } = req.params;
+  try {
+    const updatedUser = await userScheme.findByIdAndUpdate(id, req.body);
+    return res.status(201).json({
+      ok: true,
+      update_user: updatedUser,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      ok: false,
+      error: error,
+    })
+  }
+}
+
 // Agrega un producto a la lista de favoritos de cada usuario
 async function AddFavoriteProduct(req, res) {
   try {
@@ -162,4 +179,4 @@ async function DeleteFavoriteById(req, res) {
   }
 }
 
-export { AddUser, Login, AddFavoriteProduct, GetFavoriteProduct, DeleteFavoriteById };
+export { AddUser, Login, UpdateUser , AddFavoriteProduct, GetFavoriteProduct, DeleteFavoriteById };

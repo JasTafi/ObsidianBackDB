@@ -1,5 +1,5 @@
 import express from "express";
-import { AddUser, Login, AddFavoriteProduct, GetFavoriteProduct, DeleteFavoriteById } from "../controllers/user.controller"
+import { AddUser, Login, AddFavoriteProduct, GetFavoriteProduct, DeleteFavoriteById, UpdateUser } from "../controllers/user.controller"
 import { Authenticate } from "../helpers/token.helpers";
 
 const router = express.Router();
@@ -9,7 +9,10 @@ router.use(express.json());
 router.post("/user/add", AddUser); 
 
 //Logea un usuario Registrado
-router.post("/user/login", Login); 
+router.post("/user/login", Login);
+
+//Modifica usuario
+router.put("/user/:id", Authenticate, UpdateUser);
 
 //Agrega un producto a la lista de favoritos de un usuario
 router.post("/user/favorites", Authenticate, AddFavoriteProduct);
