@@ -35,6 +35,23 @@ async function AddUser(req, res) {
   }
 };
 
+// Mudificar un usuario por id
+async function UpdateUser(req, res) {
+  const { id } = req.params;
+  try {
+    const updatedUser = await userScheme.findByIdAndUpdate(id, req.body);
+    return res.status(201).json({
+      ok: true,
+      update_user: updatedUser,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      ok: false,
+      error: error,
+    })
+  }
+}
+
 // Comprueva el mail y password del usuario que se esta logeando
 async function Login(req, res) {
   try {
@@ -162,4 +179,4 @@ async function DeleteFavoriteById(req, res) {
   }
 }
 
-export { AddUser, Login, AddFavoriteProduct, GetFavoriteProduct, DeleteFavoriteById };
+export { AddUser, UpdateUser, Login, AddFavoriteProduct, GetFavoriteProduct, DeleteFavoriteById };
