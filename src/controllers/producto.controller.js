@@ -33,7 +33,7 @@ async function GetProductById(req, res) {
     if (!producto) {
       return res.status(404).json({
         ok: false,
-        message: 'Producto no encontrad'
+        message: 'Producto no encontrado'
       });
     }
     res.json(producto);

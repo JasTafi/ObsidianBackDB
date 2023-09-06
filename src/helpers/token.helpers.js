@@ -9,7 +9,7 @@ function Authenticate(req, res, next){
   if(!token) 
     return res.status(404).json({
       ok: false,
-      error_msg: 'Usuario no autorizado primer if'
+      error_msg: 'Usuario no autorizado: sin token'
     });
 
 // Si el token existe, lo verivico
@@ -17,7 +17,7 @@ function Authenticate(req, res, next){
       if(error){
         return res.status(404).json({
           ok: false,
-          error_msg: 'Usuario no autorizado segudo if'
+          error_msg: 'Usuario no autorizado: token inválido'
         });
       }
 

@@ -79,6 +79,77 @@ async function Login(req, res) {
   }
 };
 
+// Verificación de email para recuperar contraseña
+async function EmailVerification(req, res) {
+  try {
+    const { email } = req.body;
+    const userLogged = await userScheme.findOne({ email });
+
+    if (!userLogged) {
+      console.error("Usuario no encontrado en la base de datos");
+      return res.status(400).json({
+        ok: false,
+        message: "Usuario no encontrado en la base de datos",
+      });
+    }  
+
+    console.log("peticion de verificación de correo exitosa");
+    
+    return res.status(200).json ({
+      ok: true,
+      user: userLogged,
+    });
+  } catch (err) {
+    console.error("Error en la petición de verificacion de corre:", err);
+    return res.status(400).json({
+      ok: false,
+      message: "Error en la petición de verificación de correo",
+      error: err.message,
+    });
+  }
+};
+
+// Modificar contraseña por email
+async function ModifyPassword(req, res) {
+  try {
+    const { email, newPassword } = req.body;
+
+    if(!email || !newPassword) {
+      return res.status(400).json({
+        ok: false,
+        error: "El email y la nueva contraseña son obligatorias",
+      });
+    }
+
+    const newPasswordHash = await Encrypt(newPassword);
+    const updateUser = await userScheme.findOneAndUpdate(
+      { email },
+      { passwordHash: newPasswordHash },
+      { new: true }
+    );
+
+    if(!updateUser) {
+      return res.status(404).json({
+        ok: false,
+        error: "Usuario no encontrado",
+      });
+    }
+
+    return res.status(201).json({
+      ok: true,
+      update_user: updateUser,
+    });
+  } catch (error) {
+    
+    console.error("Error en la función ModifyPassword", error);
+    
+    return res.status(500).json({
+      ok: false,
+      error: "Se produjo un error en el servidor",
+    });
+  }
+};
+
 // Agrega un producto a la lista de favoritos de cada usuario
 async function AddFavoriteProduct(req, res) {
   try {
@@ -179,4 +250,4 @@ async function DeleteFavoriteById(req, res) {
   }
 }
 
-export { AddUser, UpdateUser, Login, AddFavoriteProduct, GetFavoriteProduct, DeleteFavoriteById };
+export { AddUser, UpdateUser, Login, AddFavoriteProduct, GetFavoriteProduct, DeleteFavoriteById, EmailVerification, ModifyPassword };

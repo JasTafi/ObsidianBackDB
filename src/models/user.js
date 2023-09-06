@@ -27,6 +27,12 @@ const userScheme = new Schema({
       ref: 'accesorios',
     }
   ],
+  recoveryCodes: [
+    {
+      code: String,
+      expiresAt: Date,
+    }
+  ],
 });
 
 // Sobrescribe el json que devuelve mongosse, y le pido que no devuelva estas propiedades

@@ -1,5 +1,5 @@
 import express from "express";
-import { AddUser, Login, AddFavoriteProduct, GetFavoriteProduct, DeleteFavoriteById, UpdateUser } from "../controllers/user.controller"
+import { AddUser, Login, AddFavoriteProduct, GetFavoriteProduct, DeleteFavoriteById, UpdateUser, EmailVerification, ModifyPassword } from "../controllers/user.controller"
 import { Authenticate } from "../helpers/token.helpers";
 
 const router = express.Router();
@@ -13,6 +13,12 @@ router.put("/user/:id", Authenticate, UpdateUser);
 
 //Logea un usuario Registrado
 router.post("/user/login", Login); 
+
+//Verficar email, para recupero de contraseña
+router.post("/user/email/verification", EmailVerification);
+
+//Modificación de contraseña
+router.put("/user/password/modify", ModifyPassword);
 
 //Agrega un producto a la lista de favoritos de un usuario
 router.post("/user/favorites", Authenticate, AddFavoriteProduct);
