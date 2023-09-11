@@ -27,6 +27,12 @@ const userScheme = new Schema({
       ref: 'accesorios',
     }
   ],
+  carrito: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref:'productos'
+    }
+  ],
   recoveryCodes: [
     {
       code: String,
