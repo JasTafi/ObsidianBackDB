@@ -288,6 +288,65 @@ async function AddCarProduct(req, res) {
     });
   }
 }
+
+//Muestra lista de productos agregados al carrito
+async function GetAllCarProduct (req, res){
+  try {
+    const { userId } = req.params;
+
+    const user = await userScheme.findById(userId).populate("carrito");
+
+    //Verifico si existe el usuario
+    if (!user) {
+      return res.status(404).json({
+        ok: false,
+        car_products: user.carrito,
+      });
+    }
+    return res.status(200).json({
+      ok: true,
+      car_products: user.carrito,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      ok: false,
+      error: error,
+    });
+  }
+}
+
+// Elimina un producto de la lista de carrito
+async function DeleteCarProductById (req, res){
+  try {
+    const { userId } = req.params;
+    const { productId } = req.body;
+    //Verifico si el usuario y el producto existe
+    const user = await userScheme.findById(userId);
+    if (!user || !user.carrito.includes(productId)) {
+      return res.status(404).json({
+        ok: false,
+        error_msg: "Usuario o producto no encontrado",
+      });
+    }
+
+    // Elimina el producto de la lista de favoritos del usuario
+    user.carrito = user.carrito.filter(
+      (carProduct) => carProduct.toString() !== productId
+    );
+    await user.save();
+
+    return res.status(200).json({
+      ok: true,
+      message: "Producto eliminado del carrito",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      ok: false,
+      message: "Error al eliminar el producto del carrito",
+      rerror: error.message,
+    });
+  }
+}
 export {
   AddUser,
   UpdateUser,
@@ -298,4 +357,6 @@ export {
   EmailVerification,
   ModifyPassword,
   AddCarProduct,
+  GetAllCarProduct,
+  DeleteCarProductById
 };

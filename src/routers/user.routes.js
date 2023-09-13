@@ -1,5 +1,5 @@
 import express from "express";
-import { AddUser, Login, AddFavoriteProduct, GetFavoriteProduct, DeleteFavoriteById, UpdateUser, EmailVerification, ModifyPassword, AddCarProduct } from "../controllers/user.controller"
+import { AddUser, Login, AddFavoriteProduct, GetFavoriteProduct, DeleteFavoriteById, UpdateUser, EmailVerification, ModifyPassword, AddCarProduct, GetAllCarProduct, DeleteCarProductById } from "../controllers/user.controller"
 import { Authenticate } from "../helpers/token.helpers";
 
 const router = express.Router();
@@ -31,4 +31,10 @@ router.put("/user/favorites/:userId", Authenticate, DeleteFavoriteById);
 
 // Agregar un producto al carrito del usuario
 router.post("/user/buyCar", Authenticate, AddCarProduct);
+
+// Muestra la lista de productos en el carrito de un usuario
+router.get("/user/buyCar/:userId", Authenticate, GetAllCarProduct);
+
+// Borra un producto por id de la lista de carrito
+router.put("/user/buyCar/:userId", Authenticate, DeleteCarProductById)
 export default router;
