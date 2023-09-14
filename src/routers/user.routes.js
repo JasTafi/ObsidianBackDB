@@ -18,7 +18,7 @@ router.post("/user/login", Login);
 router.post("/user/email/verification", EmailVerification);
 
 //Modificación de contraseña
-router.put("/user/password/modify", ModifyPassword);
+router.put("/user/password/modify", Authenticate, ModifyPassword);
 
 //Agrega un producto a la lista de favoritos de un usuario
 router.post("/user/favorites", Authenticate, AddFavoriteProduct);

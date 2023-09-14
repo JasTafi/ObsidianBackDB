@@ -1,6 +1,8 @@
 import mongoose, { Schema } from "mongoose";
 import jwt from "jsonwebtoken";
 
+import { TemporaryToken } from "../helpers/token.helpers";
+
 const userScheme = new Schema({
   email: String,
   passwordHash: String,
@@ -27,13 +29,13 @@ const userScheme = new Schema({
       ref: 'accesorios',
     }
   ],
-  recoveryCodes: [
-    {
-      code: String,
-      expiresAt: Date,
-    }
-  ],
 });
+
+//  Agrega un método para generar un token temporal
+userScheme.methods.generateTemporaryPaswordResetToken = function () {
+  const token = TemporaryToken(this._id);
+  return token;
+}
 
 // Sobrescribe el json que devuelve mongosse, y le pido que no devuelva estas propiedades
 userScheme.set('toJSON', {
