@@ -269,7 +269,7 @@ async function AddCarProduct(req, res) {
     if (user.carrito.includes(productId)) {
       return res.status(400).json({
         ok: false,
-        error_msg: "El producto ya está en la lista de favoritos",
+        error_msg: "El producto ya está en la lista del carrito",
       });
     }
     // Agregar el producto a la lista de favoritos del usuario
