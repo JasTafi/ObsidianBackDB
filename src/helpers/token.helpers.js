@@ -1,9 +1,16 @@
 import jwt from "jsonwebtoken";
+import { v4 as uuidv4 } from 'uuid';
 
-//Generar un token temporal para recuperación de contraseña
-function TemporaryToken(userId) {
-  const token = jwt.sign({ userId }, process.env.SECRET, { expiresIn: '1h' });
-  return token;
+//Generar un token temporal con un maximo de 12 caracteres
+function TemporaryToken() {
+
+  // Generar un uuid
+  const uuidValue = uuidv4();
+
+  // Encriptar el uuid con jwt y limitar a 12 caracteres
+  const token = jwt.sign({ uuid: uuidValue }, "process.env.SECRET", { expiresIn: "3h" }).substring(0, 12);
+
+  return token
 }
 
 //autentifica al usuario recibiendo el token enviado

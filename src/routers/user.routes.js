@@ -1,5 +1,5 @@
 import express from "express";
-import { AddUser, Login, AddFavoriteProduct, GetFavoriteProduct, DeleteFavoriteById, UpdateUser, EmailVerification, ModifyPassword } from "../controllers/user.controller"
+import { AddUser, Login, AddFavoriteProduct, GetFavoriteProduct, DeleteFavoriteById, UpdateUser, EmailVerification, ModifyPassword, AddCarProduct, GetAllCarProduct, DeleteCarProductById, GetUserByMail } from "../controllers/user.controller"
 import { Authenticate } from "../helpers/token.helpers";
 
 const router = express.Router();
@@ -18,7 +18,7 @@ router.post("/user/login", Login);
 router.post("/user/email/verification", EmailVerification);
 
 //Modificación de contraseña
-router.put("/user/password/modify", Authenticate, ModifyPassword);
+router.put("/user/password/modify", ModifyPassword);
 
 //Agrega un producto a la lista de favoritos de un usuario
 router.post("/user/favorites", Authenticate, AddFavoriteProduct);
@@ -28,5 +28,17 @@ router.get("/user/favorites/:userId", Authenticate, GetFavoriteProduct);
 
 // Borra un producto por id de la lista de favorito
 router.put("/user/favorites/:userId", Authenticate, DeleteFavoriteById);
+
+// Agregar un producto al carrito del usuario
+router.post("/user/buyCar", Authenticate, AddCarProduct);
+
+// Muestra la lista de productos en el carrito de un usuario
+router.get("/user/buyCar/:userId", Authenticate, GetAllCarProduct);
+
+// Borra un producto por id de la lista de carrito
+router.put("/user/buyCar/:userId", Authenticate, DeleteCarProductById)
+
+// Muestra un usuario buscado por el email
+router.get("/user/byEmail/:email", GetUserByMail);
 
 export default router;

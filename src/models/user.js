@@ -29,6 +29,13 @@ const userScheme = new Schema({
       ref: 'accesorios',
     }
   ],
+  carrito: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref:'accesorios'
+    }
+  ],
+  TemporaryToken: String,
 });
 
 //  Agrega un método para generar un token temporal

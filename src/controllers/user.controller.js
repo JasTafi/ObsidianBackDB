@@ -94,15 +94,15 @@ async function EmailVerification(req, res) {
         ok: false,
         message: "Usuario no encontrado en la base de datos",
       });
-    }
+    }    
     
     //Generar un token temporal y lo envia al usuario
-    const temporaryToken = TemporaryToken(userLogged._id);
-
-    //Creación del enlace con el token
-    //const resetPasswordLink = `http://localhost:5173/recContraseña?token=${temporaryToken}`;
+    const tempToken = TemporaryToken(userLogged._id);
+    userLogged.TemporaryToken = tempToken;
+    await userLogged.save();
 
     console.log("peticion de verificación de correo exitosa");
+    console.log(tempToken)
 
     // Configuración del transporte SMTP de Nodemailer
     const transporter = nodemailer.createTransport({
@@ -118,16 +118,16 @@ async function EmailVerification(req, res) {
       from: process.env.SMTP_EMAIL,
       to: userLogged.email,
       subject: "Recuperación de contraseña",
-      text: `Utilice este codigo para recuperar su contrseña: ${temporaryToken}`
+      text: `Utilice este codigo para recuperar su contrseña: ${tempToken}`
     };
 
     //Enviar el correo electrónico
-    await transporter.sendMail(mailOptions)
+      await transporter.sendMail(mailOptions)
 
       console.log("Correo electrónico enviado:");
 
       return res.status(200).json({
-        temporaryToken,
+        tempToken,
         ok: true,
         message: "Solicitud de verificación de correo exitosa",
       });
@@ -141,11 +141,12 @@ async function EmailVerification(req, res) {
   }
 }
 
-// Modificar contraseña por email
+// Verificación de tokenes temporarios
 async function ModifyPassword(req, res) {
   try {
     const { email, newPassword } = req.body;
-    //Encuentro al usuario por su direccion de email
+
+    // Consultar la base de datos para obtener el token almacenado en el usuario
     const userLogged = await userScheme.findOne({ email });
 
     if(!userLogged) {
@@ -156,16 +157,15 @@ async function ModifyPassword(req, res) {
       });
     }
 
-    //Genero el hash de la nueva contraseña
     const newPasswordHash = await Encrypt(newPassword);
-    
-    //Acyualizo la contrasea del usuario en la base de datos
+
+    // Acyualizo la contrasea del usuario en la base de datos
     userLogged.passwordHash = newPasswordHash;
-    await userLogged.seve();
+    await userLogged.save();
 
     console.log("Contraseña cambiada exitosamente");
 
-    return res.status(200).jason({
+    return res.status(200).json({
       ok: true,
       message: "Contraseña cambiada exitosamente",
     });
@@ -279,6 +279,128 @@ async function DeleteFavoriteById(req, res) {
   }
 }
 
+//Agregar un producto al carrito de compras
+async function AddCarProduct(req, res) {
+  try {
+    const { userId, productId } = req.body;
+
+    // Verifica si el usuario existe
+    const user = await userScheme.findById(userId);
+    const Product = await productoSchema.findById(productId);
+
+    // Verificar si el usuario o el producto existe
+    if (!user || !Product) {
+      return res.status(404).json({
+        ok: false,
+        error_msg: "Usuario o producto no encontrado",
+      });
+    }
+    // Verifica si el producto ya esta en la lista de favorito
+    if (user.carrito.includes(productId)) {
+      return res.status(400).json({
+        ok: false,
+        error_msg: "El producto ya está en la lista de favoritos",
+      });
+    }
+    // Agregar el producto a la lista de favoritos del usuario
+    user.carrito.push(Product);
+    await user.save();
+
+    return res.status(200).json({
+      ok: true,
+      message: "Producto agregado al carrito",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      ok: false,
+      message: "Error al agregar el producto al carrito",
+      error: error.message,
+    });
+  }
+}
+
+//Muestra lista de productos agregados al carrito
+async function GetAllCarProduct (req, res){
+  try {
+    const { userId } = req.params;
+
+    const user = await userScheme.findById(userId).populate("carrito");
+
+    //Verifico si existe el usuario
+    if (!user) {
+      return res.status(404).json({
+        ok: false,
+        car_products: user.carrito,
+      });
+    }
+    return res.status(200).json({
+      ok: true,
+      car_products: user.carrito,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      ok: false,
+      error: error,
+    });
+  }
+}
+
+// Elimina un producto de la lista de carrito
+async function DeleteCarProductById (req, res){
+  try {
+    const { userId } = req.params;
+    const { productId } = req.body;
+    //Verifico si el usuario y el producto existe
+    const user = await userScheme.findById(userId);
+    if (!user || !user.carrito.includes(productId)) {
+      return res.status(404).json({
+        ok: false,
+        error_msg: "Usuario o producto no encontrado",
+      });
+    }
+
+    // Elimina el producto de la lista de favoritos del usuario
+    user.carrito = user.carrito.filter(
+      (carProduct) => carProduct.toString() !== productId
+    );
+    await user.save();
+
+    return res.status(200).json({
+      ok: true,
+      message: "Producto eliminado del carrito",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      ok: false,
+      message: "Error al eliminar el producto del carrito",
+      rerror: error.message,
+    });
+  }
+}
+
+//Leer usuario por mail
+async function GetUserByMail (req, res){
+  console.log(req);
+  const { email } = req.params;
+
+  try {
+    const user = await userScheme.findOne({ email })
+    if(!user) {
+      return res.status(400).json({
+        ok: false,
+        message: "Usuario no encontrado",
+      });
+    }
+    res.json(user);
+  } catch (error) {
+    console.error("Error al obtener el usuario", error),
+    res.status(500).json({
+      ok: false,
+      message: "Error al obtener el usuario, email no encontrado" 
+    });
+  }
+} 
+
 export {
   AddUser,
   UpdateUser,
@@ -288,4 +410,8 @@ export {
   DeleteFavoriteById,
   EmailVerification,
   ModifyPassword,
+  AddCarProduct,
+  GetAllCarProduct,
+  DeleteCarProductById,
+  GetUserByMail
 };
