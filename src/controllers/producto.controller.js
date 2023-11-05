@@ -18,7 +18,7 @@ async function GetAllProductos(req, res) {
     //500 ->Internal Server Error
     return res.status(500).json({
       ok: false,
-      error: ex,
+      error: "Error al obtener el producto:" + ex.message,
     });
   }
 }

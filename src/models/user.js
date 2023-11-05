@@ -35,7 +35,10 @@ const userScheme = new Schema({
       ref:'accesorios'
     }
   ],
-  TemporaryToken: String,
+  TemporaryToken: {
+    token: String,
+    expirationToken: Date
+  },
 });
 
 //  Agrega un método para generar un token temporal

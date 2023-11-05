@@ -1,16 +1,12 @@
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from 'uuid';
 
-//Generar un token temporal con un maximo de 12 caracteres
-function TemporaryToken() {
-
+function GenerateToken(userId) {
+  
   // Generar un uuid
-  const uuidValue = uuidv4();
-
-  // Encriptar el uuid con jwt y limitar a 12 caracteres
-  const token = jwt.sign({ uuid: uuidValue }, "process.env.SECRET", { expiresIn: "3h" }).substring(0, 12);
-
-  return token
+  const token = uuidv4();
+  const expirationToken = Date.now() + 3 * 60 * 60 * 1000; // 3 horas de expiración
+  return { token, expirationToken };
 }
 
 //autentifica al usuario recibiendo el token enviado
@@ -38,4 +34,4 @@ function Authenticate(req, res, next){
     });
 } 
 
-export { Authenticate, TemporaryToken };
+export { Authenticate, GenerateToken };

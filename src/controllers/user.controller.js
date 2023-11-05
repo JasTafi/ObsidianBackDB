@@ -1,9 +1,10 @@
 import nodemailer from "nodemailer";
 
 import { Encrypt, Compare } from "../helpers/password.helper";
-import { TemporaryToken } from "../helpers/token.helpers";
+import { GenerateToken } from "../helpers/token.helpers";
 import productoSchema from "../models/producto";
 import userScheme from "../models/user";
+//import { SendEmail } from "../helpers/nodemailer_service";
 
 const Login_Error_Message = "El usuario o la contraseña no coincide";
 const base_error_objet = {
@@ -88,49 +89,62 @@ async function EmailVerification(req, res) {
     const { email } = req.body;
     const userLogged = await userScheme.findOne({ email });
 
-    if (!userLogged) {
-      console.error("Usuario no encontrado en la base de datos");
-      return res.status(400).json({
-        ok: false,
-        message: "Usuario no encontrado en la base de datos",
+    if (
+      (!userLogged.TemporaryToken &&
+        !userLogged.TemporaryToken.token &&
+        userLogged.TemporaryToken.expirationToken) ||
+      userLogged.TemporaryToken.expirationToken < Date.now()
+    ) {
+      //Generar un token temporal y lo envia al usuario
+      const tempToken = GenerateToken(userLogged._id);
+
+      // Asigna el token al campo TemporaryToken del usuario
+      userLogged.TemporaryToken = {
+        token: tempToken.token,
+        expirationToken: tempToken.expirationToken,
+      };
+
+      // Guarda los cambios en la base de datos
+      await userLogged.save();
+
+      userLogged.TemporaryToken = tempToken;
+      console.log("peticion de verificación de correo exitosa");
+
+      // Configuración del transporte SMTP de Nodemailer
+      const transporter = nodemailer.createTransport({
+        service: "Gmail",
+        auth: {
+          user: process.env.SMTP_EMAIL,
+          pass: process.env.SMTP_PASSWORD,
+        },
       });
-    }    
-    
-    //Generar un token temporal y lo envia al usuario
-    const tempToken = TemporaryToken(userLogged._id);
-    userLogged.TemporaryToken = tempToken;
-    await userLogged.save();
 
-    console.log("peticion de verificación de correo exitosa");
-    console.log(tempToken)
+      // Configuración del mensaje
+      const mailOptions = {
+        from: process.env.SMTP_EMAIL,
+        to: userLogged.email,
+        subject: "Recuperación de contraseña",
+        text: `Utilice este codigo para recuperar su contrseña: ${tempToken.token}`,
+      };
 
-    // Configuración del transporte SMTP de Nodemailer
-    const transporter = nodemailer.createTransport({
-      service: "Gmail",
-      auth: {
-        user: process.env.SMTP_EMAIL,
-        pass: process.env.SMTP_PASSWORD,
-      },
-    });
-
-    // Configuración del mensaje 
-    const mailOptions = {
-      from: process.env.SMTP_EMAIL,
-      to: userLogged.email,
-      subject: "Recuperación de contraseña",
-      text: `Utilice este codigo para recuperar su contrseña: ${tempToken}`
-    };
-
-    //Enviar el correo electrónico
-      await transporter.sendMail(mailOptions)
+      //Enviar el correo electrónico
+      await transporter.sendMail(mailOptions);
 
       console.log("Correo electrónico enviado:");
-
+    } else {
+      console.log(userLogged);
+      console.log("Ya se ha enviado un Token Temporal previamente");
       return res.status(200).json({
-        tempToken,
         ok: true,
-        message: "Solicitud de verificación de correo exitosa",
+        message: "Ya se ha enviado un token temporal previamente.",
       });
+    }
+
+    return res.status(200).json({
+      tempToken,
+      ok: true,
+      message: "Solicitud de verificación de correo exitosa",
+    });
   } catch (err) {
     console.error("Error en la petición de verificación de correo:", err);
     return res.status(400).json({
@@ -144,22 +158,21 @@ async function EmailVerification(req, res) {
 // Verificación de tokenes temporarios
 async function ModifyPassword(req, res) {
   try {
-    const { email, newPassword } = req.body;
+    const { email, password } = req.body;
 
     // Consultar la base de datos para obtener el token almacenado en el usuario
     const userLogged = await userScheme.findOne({ email });
 
-    if(!userLogged) {
+    if (!userLogged) {
       console.error("Usuario no encontrado en la base de datos");
       return res.status(400).json({
         ok: false,
         message: "Usuario no encontrado en la base de datos",
       });
     }
+    const newPasswordHash = await Encrypt(password);
 
-    const newPasswordHash = await Encrypt(newPassword);
-
-    // Acyualizo la contrasea del usuario en la base de datos
+    // Actualizo la contrasea del usuario en la base de datos
     userLogged.passwordHash = newPasswordHash;
     await userLogged.save();
 
@@ -320,7 +333,7 @@ async function AddCarProduct(req, res) {
 }
 
 //Muestra lista de productos agregados al carrito
-async function GetAllCarProduct (req, res){
+async function GetAllCarProduct(req, res) {
   try {
     const { userId } = req.params;
 
@@ -346,7 +359,7 @@ async function GetAllCarProduct (req, res){
 }
 
 // Elimina un producto de la lista de carrito
-async function DeleteCarProductById (req, res){
+async function DeleteCarProductById(req, res) {
   try {
     const { userId } = req.params;
     const { productId } = req.body;
@@ -379,27 +392,28 @@ async function DeleteCarProductById (req, res){
 }
 
 //Leer usuario por mail
-async function GetUserByMail (req, res){
+async function GetUserByMail(req, res) {
   console.log(req);
   const { email } = req.params;
 
   try {
-    const user = await userScheme.findOne({ email })
-    if(!user) {
+    const user = await userScheme.findOne({ email });
+    if (!user) {
       return res.status(400).json({
         ok: false,
         message: "Usuario no encontrado",
       });
     }
     res.json(user);
+    console.log(res);
   } catch (error) {
     console.error("Error al obtener el usuario", error),
-    res.status(500).json({
-      ok: false,
-      message: "Error al obtener el usuario, email no encontrado" 
-    });
+      res.status(500).json({
+        ok: false,
+        message: "Error al obtener el usuario, email no encontrado",
+      });
   }
-} 
+}
 
 export {
   AddUser,
@@ -413,5 +427,5 @@ export {
   AddCarProduct,
   GetAllCarProduct,
   DeleteCarProductById,
-  GetUserByMail
+  GetUserByMail,
 };
