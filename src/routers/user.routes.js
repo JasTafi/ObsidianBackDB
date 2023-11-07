@@ -1,5 +1,9 @@
 import express from "express";
+<<<<<<< HEAD
 import { AddUser, Login, AddFavoriteProduct, GetFavoriteProduct, DeleteFavoriteById, UpdateUser, EmailVerification, ModifyPassword, AddCarProduct, GetAllCarProduct, DeleteCarProductById, GetUserByMail } from "../controllers/user.controller"
+=======
+import { AddUser, Login, AddFavoriteProduct, GetFavoriteProduct, DeleteFavoriteById, UpdateUser, EmailVerification, ModifyPassword, AddCarProduct, GetAllCarProduct, DeleteCarProductById, AddPedido, GetAllPedidos } from "../controllers/user.controller"
+>>>>>>> origin/car_product
 import { Authenticate } from "../helpers/token.helpers";
 
 const router = express.Router();
@@ -36,9 +40,17 @@ router.post("/user/buyCar", Authenticate, AddCarProduct);
 router.get("/user/buyCar/:userId", Authenticate, GetAllCarProduct);
 
 // Borra un producto por id de la lista de carrito
+<<<<<<< HEAD
 router.put("/user/buyCar/:userId", Authenticate, DeleteCarProductById)
 
 // Muestra un usuario buscado por el email
 router.get("/user/byEmail/:email", GetUserByMail);
 
+=======
+router.put("/user/buyCar/:userId", Authenticate, DeleteCarProductById);
+
+router.post("/user/pedido",Authenticate,AddPedido);
+
+router.get('/user/pedido',GetAllPedidos);
+>>>>>>> origin/car_product
 export default router;

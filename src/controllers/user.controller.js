@@ -312,7 +312,7 @@ async function AddCarProduct(req, res) {
     if (user.carrito.includes(productId)) {
       return res.status(400).json({
         ok: false,
-        error_msg: "El producto ya está en la lista de favoritos",
+        error_msg: "El producto ya está en la lista del carrito",
       });
     }
     // Agregar el producto a la lista de favoritos del usuario
@@ -391,6 +391,68 @@ async function DeleteCarProductById(req, res) {
   }
 }
 
+//para crear pedido de producto
+async function AddPedido(req, res) {
+  try {
+    const { userId, productId, nombre: {nombres, apellidos}, direccion: {departamento, calle, numero, localidad, provincia}  } = req.body;
+   
+    // Verifica si el usuario existe
+    const user = await userScheme.findById(userId);
+    const Product = await productoSchema.findById(productId);
+  
+    // Verificar si el usuario o el producto existe
+    if (!user || !Product) {
+      return res.status(404).json({
+        ok: false,
+        error_msg: "Usuario o producto no encontrado",
+      });
+    }
+    // Agregar el producto a la lista de favoritos del usuario
+    user.pedido.push({
+      nombre: {
+        nombres,
+        apellidos,
+      },
+      direccion: {
+        departamento,
+        calle,
+        numero,
+        localidad,
+        provincia,
+      },
+      producto: [Product],
+    });
+    await user.save();
+
+    return res.status(200).json({
+      ok: true,
+      message: "Producto agregado al pedido",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      ok: false,
+      message: "Error al agregar el producto al pedido 2",
+      error: error.message,
+    });
+  }
+}
+
+async function GetAllPedidos(req, res) {
+  try {
+    const productos = await userScheme.find();
+    return res.status(200).json({
+      ok: true,
+      data: productos,
+    });
+  } catch (ex) {
+    //500 ->Internal Server Error
+    return res.status(500).json({
+      ok: false,
+      error: ex,
+    });
+  }
+}
+
 //Leer usuario por mail
 async function GetUserByMail(req, res) {
   console.log(req);
@@ -427,5 +489,7 @@ export {
   AddCarProduct,
   GetAllCarProduct,
   DeleteCarProductById,
+  AddPedido,
+  GetAllPedidos,
   GetUserByMail,
 };

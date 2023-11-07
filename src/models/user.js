@@ -26,19 +26,49 @@ const userScheme = new Schema({
   favoritos: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'accesorios',
-    }
+      ref: "accesorios",
+    },
   ],
   carrito: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref:'accesorios'
-    }
+      ref: "accesorios",
+    },
   ],
+<<<<<<< HEAD
   TemporaryToken: {
     token: String,
     expirationToken: Date
   },
+=======
+  recoveryCodes: [
+    {
+      code: String,
+      expiresAt: Date,
+    },
+  ],
+  pedido: [
+    {
+      nombre: {
+        nombres: String,
+        apellidos: String,
+      },
+      direccion: {
+        departamento: String,
+        calle: String,
+        numero: String,
+        localidad: String,
+        provincia: String,
+      },
+      producto: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "accesorios",
+        },
+      ],
+    },
+  ],
+>>>>>>> origin/car_product
 });
 
 //  Agrega un método para generar un token temporal
@@ -48,7 +78,7 @@ userScheme.methods.generateTemporaryPaswordResetToken = function () {
 }
 
 // Sobrescribe el json que devuelve mongosse, y le pido que no devuelva estas propiedades
-userScheme.set('toJSON', {
+userScheme.set("toJSON", {
   transform: function (doc, ret) {
     ret.id = ret._id;
     delete ret.passwordHash;
@@ -57,12 +87,12 @@ userScheme.set('toJSON', {
     delete ret.__v;
     delete ret.bloqueado;
     delete ret.administrador;
-  }
-})
+  },
+});
 
 // Genero el token de acceso (mi secreto)
 userScheme.methods.generateAccesToken = function () {
-  const  token = jwt.sign({ _id: this._id }, process.env.SECRET);
+  const token = jwt.sign({ _id: this._id }, process.env.SECRET);
   return token;
 };
 
