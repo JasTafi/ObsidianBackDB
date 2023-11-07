@@ -35,12 +35,10 @@ const userScheme = new Schema({
       ref: "accesorios",
     },
   ],
-<<<<<<< HEAD
   TemporaryToken: {
     token: String,
     expirationToken: Date
   },
-=======
   recoveryCodes: [
     {
       code: String,
@@ -68,7 +66,6 @@ const userScheme = new Schema({
       ],
     },
   ],
->>>>>>> origin/car_product
 });
 
 //  Agrega un método para generar un token temporal
