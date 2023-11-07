@@ -45,8 +45,6 @@ const userScheme = new Schema({
         nombres: String,
         apellidos: String,
       },
-    },
-    {
       direccion: {
         departamento: String,
         calle: String,
@@ -54,10 +52,12 @@ const userScheme = new Schema({
         localidad: String,
         provincia: String,
       },
-      producto: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "accesorios",
-      },
+      producto: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "accesorios",
+        },
+      ],
     },
   ],
 });

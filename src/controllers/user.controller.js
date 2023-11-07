@@ -351,13 +351,12 @@ async function DeleteCarProductById(req, res) {
 //para crear pedido de producto
 async function AddPedido(req, res) {
   try {
-    const { userId, productId } = req.body;
-    const { calle, numero, localidad, provincia } = req.body;
-
+    const { userId, productId, nombre: {nombres, apellidos}, direccion: {departamento, calle, numero, localidad, provincia}  } = req.body;
+   
     // Verifica si el usuario existe
     const user = await userScheme.findById(userId);
     const Product = await productoSchema.findById(productId);
-
+  
     // Verificar si el usuario o el producto existe
     if (!user || !Product) {
       return res.status(404).json({
@@ -378,7 +377,7 @@ async function AddPedido(req, res) {
         localidad,
         provincia,
       },
-      producto: Product,
+      producto: [Product],
     });
     await user.save();
 
