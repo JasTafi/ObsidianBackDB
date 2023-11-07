@@ -18,7 +18,7 @@ async function GetAllProductos(req, res) {
     //500 ->Internal Server Error
     return res.status(500).json({
       ok: false,
-      error: ex,
+      error: "Error al obtener el producto:" + ex.message,
     });
   }
 }
@@ -33,7 +33,7 @@ async function GetProductById(req, res) {
     if (!producto) {
       return res.status(404).json({
         ok: false,
-        message: 'Producto no encontrad'
+        message: 'Producto no encontrado'
       });
     }
     res.json(producto);
