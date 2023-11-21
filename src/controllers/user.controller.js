@@ -18,7 +18,6 @@ async function AddUser(req, res) {
     const { email, password, photoUrl } = req.body;
 
     const passwordHash = await Encrypt(password);
-    console.log(passwordHash);
     const newUser = await userScheme.create({
       email,
       photoUrl,
@@ -88,15 +87,17 @@ async function EmailVerification(req, res) {
   try {
     const { email } = req.body;
     const userLogged = await userScheme.findOne({ email });
+    let tempToken;
 
     if (
       (!userLogged.TemporaryToken &&
         !userLogged.TemporaryToken.token &&
         userLogged.TemporaryToken.expirationToken) ||
-      userLogged.TemporaryToken.expirationToken < Date.now()
+      userLogged.TemporaryToken.expirationToken < Date.now() || 
+      userLogged.TemporaryToken.token === undefined
     ) {
       //Generar un token temporal y lo envia al usuario
-      const tempToken = GenerateToken(userLogged._id);
+      tempToken = GenerateToken(userLogged._id);
 
       // Asigna el token al campo TemporaryToken del usuario
       userLogged.TemporaryToken = {
@@ -109,7 +110,7 @@ async function EmailVerification(req, res) {
 
       userLogged.TemporaryToken = tempToken;
       console.log("peticion de verificación de correo exitosa");
-
+      
       // Configuración del transporte SMTP de Nodemailer
       const transporter = nodemailer.createTransport({
         service: "Gmail",
@@ -118,7 +119,7 @@ async function EmailVerification(req, res) {
           pass: process.env.SMTP_PASSWORD,
         },
       });
-
+      
       // Configuración del mensaje
       const mailOptions = {
         from: process.env.SMTP_EMAIL,
@@ -126,13 +127,13 @@ async function EmailVerification(req, res) {
         subject: "Recuperación de contraseña",
         text: `Utilice este codigo para recuperar su contrseña: ${tempToken.token}`,
       };
-
+      
       //Enviar el correo electrónico
       await transporter.sendMail(mailOptions);
-
+      
       console.log("Correo electrónico enviado:");
     } else {
-      console.log(userLogged);
+      //console.log(userLogged);
       console.log("Ya se ha enviado un Token Temporal previamente");
       return res.status(200).json({
         ok: true,
