@@ -49,6 +49,7 @@ async function GetProductById(req, res) {
 // Guardar un nuevo producto en la base de dato
 async function AddProductos(req, res) {
   try {
+    console.log('Recibiendo solicitud para agregar producto:', req.body);
 
     if (!req.body.nombre || !req.body.categoria || !req.body.precio || !req.body.stock || !req.body.descripcion === '') {
       return res.status(400).json({
@@ -57,11 +58,14 @@ async function AddProductos(req, res) {
       });
     }
     const AddedProducto = await Productoschema.create(req.body);
+    console.log('Producto agregado con éxito:', AddedProducto);
+
     return res.status(201).json({
       ok: true,
       added_producto: AddedProducto,
     });
   } catch (error) {
+    console.error('Error al agregar el producto:', error);
     //500 ->Internal Server Error
     return res.status(500).json({
       ok: false,
@@ -74,6 +78,16 @@ async function AddProductos(req, res) {
 async function UpdateProducto(req, res) {
   const { id } = req.params;
   try {
+    const idProduct = await Productoschema.findById(id);
+
+    if(!idProduct) {
+      console.error('Producto no encontrado');
+      return res.status(404).json({
+        ok: false,
+        error: 'Producto no encontrado'
+      });
+    }
+    
     const updatedProducto = await Productoschema.findByIdAndUpdate(id, req.body);
     return res.status(201).json({
       ok: true,
