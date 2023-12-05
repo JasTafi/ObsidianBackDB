@@ -93,7 +93,7 @@ async function EmailVerification(req, res) {
       (!userLogged.TemporaryToken &&
         !userLogged.TemporaryToken.token &&
         userLogged.TemporaryToken.expirationToken) ||
-      userLogged.TemporaryToken.expirationToken < Date.now() || 
+      userLogged.TemporaryToken.expirationToken < Date.now() ||
       userLogged.TemporaryToken.token === undefined
     ) {
       //Generar un token temporal y lo envia al usuario
@@ -110,7 +110,7 @@ async function EmailVerification(req, res) {
 
       userLogged.TemporaryToken = tempToken;
       console.log("peticion de verificación de correo exitosa");
-      
+
       // Configuración del transporte SMTP de Nodemailer
       const transporter = nodemailer.createTransport({
         service: "Gmail",
@@ -119,7 +119,7 @@ async function EmailVerification(req, res) {
           pass: process.env.SMTP_PASSWORD,
         },
       });
-      
+
       // Configuración del mensaje
       const mailOptions = {
         from: process.env.SMTP_EMAIL,
@@ -127,10 +127,10 @@ async function EmailVerification(req, res) {
         subject: "Recuperación de contraseña",
         text: `Utilice este codigo para recuperar su contrseña: ${tempToken.token}`,
       };
-      
+
       //Enviar el correo electrónico
       await transporter.sendMail(mailOptions);
-      
+
       console.log("Correo electrónico enviado:");
     } else {
       //console.log(userLogged);
@@ -395,14 +395,19 @@ async function DeleteCarProductById(req, res) {
 //para crear pedido de producto
 async function AddPedido(req, res) {
   try {
-    const { userId, productId, nombre: {nombres, apellidos}, direccion: {departamento, calle, numero, localidad, provincia}  } = req.body;
-   
+    const {
+      userId,
+      products,
+      nombre: { nombres, apellidos },
+      direccion: { departamento, calle, numero, localidad, provincia },
+    } = req.body;
+
     // Verifica si el usuario existe
     const user = await userScheme.findById(userId);
-    const Product = await productoSchema.findById(productId);
-  
+    // Obtener los productos correspondientes a los productIds
+    const Products = await productoSchema.find({ _id: { $in: products } });
     // Verificar si el usuario o el producto existe
-    if (!user || !Product) {
+    if (!user || !Products) {
       return res.status(404).json({
         ok: false,
         error_msg: "Usuario o producto no encontrado",
@@ -410,6 +415,7 @@ async function AddPedido(req, res) {
     }
     // Agregar el producto a la lista de favoritos del usuario
     user.pedido.push({
+      mail: user.email,
       nombre: {
         nombres,
         apellidos,
@@ -421,7 +427,7 @@ async function AddPedido(req, res) {
         localidad,
         provincia,
       },
-      producto: [Product],
+      producto: Products,
     });
     await user.save();
 
@@ -438,18 +444,37 @@ async function AddPedido(req, res) {
   }
 }
 
+// Obtén todos los pedidos de productos de todos los usuarios
 async function GetAllPedidos(req, res) {
   try {
-    const productos = await userScheme.find();
+    // Consulta todos los usuarios con pedidos
+    const usersWithPedidos = await userScheme
+      .find({ "pedido.0": { $exists: true } })
+      .populate({
+        path: "pedido.producto",
+        model: "accesorios",
+      });
+
+    // Si no hay usuarios con pedidos, devuelve un mensaje informativo
+    if (!usersWithPedidos || usersWithPedidos.length === 0) {
+      return res.status(404).json({
+        ok: false,
+        error_msg: "No hay pedidos de productos registrados",
+      });
+    }
+
+    // Construye un array con todos los pedidos y productos
+    const allPedidos = usersWithPedidos.map((user) => user.pedido).flat();
+
     return res.status(200).json({
       ok: true,
-      data: productos,
+      pedidos: allPedidos,
     });
-  } catch (ex) {
-    //500 ->Internal Server Error
+  } catch (error) {
     return res.status(500).json({
       ok: false,
-      error: ex,
+      message: "Error al obtener los pedidos",
+      error: error.message,
     });
   }
 }
