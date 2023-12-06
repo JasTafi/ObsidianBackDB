@@ -47,6 +47,11 @@ const userScheme = new Schema({
   ],
   pedido: [
     {
+      mail: String,
+      fecha: {
+        type: Date,
+        default: Date.now()
+      },
       nombre: {
         nombres: String,
         apellidos: String,
@@ -83,7 +88,6 @@ userScheme.set("toJSON", {
     delete ret.favoritos;
     delete ret.__v;
     delete ret.bloqueado;
-    delete ret.administrador;
   },
 });
 

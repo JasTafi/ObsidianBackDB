@@ -1,6 +1,6 @@
 import Productoschema from '../models/producto';
 
-const maxElements = 15;
+const maxElements = 20;
 //Segmento la responsabilidad de conexion a la base de datos de mi index
 
 //Trae todos los productos de la base de dato 
