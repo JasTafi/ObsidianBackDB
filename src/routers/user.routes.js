@@ -1,5 +1,5 @@
 import express from "express";
-import { AddUser, Login, AddFavoriteProduct, GetFavoriteProduct, DeleteFavoriteById, UpdateUser, EmailVerification, ModifyPassword, AddCarProduct, GetAllCarProduct, DeleteCarProductById, AddPedido, GetAllPedidos, GetUserByMail } from "../controllers/user.controller"
+import { AddUser, Login, AddFavoriteProduct, GetFavoriteProduct, DeleteFavoriteById, UpdateUser, EmailVerification, ModifyPassword, AddCarProduct, GetAllCarProduct, DeleteCarProductById, AddPedido, GetAllPedidos, GetUserByMail, UpdatePedido } from "../controllers/user.controller"
 import { Authenticate } from "../helpers/token.helpers";
 
 const router = express.Router();
@@ -44,4 +44,6 @@ router.get("/user/byEmail/:email", GetUserByMail);
 router.post("/user/pedido",Authenticate,AddPedido);
 
 router.get('/user/pedido',GetAllPedidos);
+//modifica el estado del pedido
+router.post('/user/pedido/modificar', UpdatePedido);
 export default router;

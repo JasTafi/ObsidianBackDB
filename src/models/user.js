@@ -69,6 +69,15 @@ const userScheme = new Schema({
           ref: "accesorios",
         },
       ],
+      estado: {
+        type: String,
+        enum: ["sin realizar", "preparando", "realizado"],
+        default: "sin realizar",
+      },
+      virtual_delete: {
+        type: Boolean,
+        default: false
+      }
     },
   ],
 });

@@ -444,7 +444,7 @@ async function AddPedido(req, res) {
   }
 }
 
-// Obtén todos los pedidos de productos de todos los usuarios
+// Obtiene todos los pedidos de productos de todos los usuarios
 async function GetAllPedidos(req, res) {
   try {
     // Consulta todos los usuarios con pedidos
@@ -479,11 +479,36 @@ async function GetAllPedidos(req, res) {
   }
 }
 //Borra pedidos desde administracion
-async function DeletePedido(){
+async function UpdatePedido(req, res) {
+  const { pedidoId, virtualDelete, nuevoEstado, mail } = req.body;
   try {
-    
+    const user = await userScheme.findOne({email: mail });
+    if (!user) {
+      return res.status(500).json({
+        ok: false,
+        msg: "usuario no encontrado",
+      });
+    }
+    const pedido = user.pedido.id(pedidoId);
+    if (!pedido) {
+      return res.status(500).json({
+        ok: false,
+        msg: "Pedido no encontrado",
+      });
+    }
+    pedido.estado = nuevoEstado;
+    pedido.virtual_delete = virtualDelete;
+
+    await user.save();
+    return res.status(200).json({
+      ok: true,
+      msg: `Modificacion exitosa de estado a ${nuevoEstado} y eliminar pedido a ${virtualDelete}`
+    })
   } catch (error) {
-    
+    return res.status(500).json({
+      ok: false,
+      msg: `No se pudo modificar estado a  ${nuevoEstado} y eliminar pedido a ${virtualDelete} ${error}`
+    })
   }
 }
 //Leer usuario por mail
@@ -524,5 +549,6 @@ export {
   DeleteCarProductById,
   AddPedido,
   GetAllPedidos,
+  UpdatePedido,
   GetUserByMail,
 };
