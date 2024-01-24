@@ -478,7 +478,14 @@ async function GetAllPedidos(req, res) {
     });
   }
 }
-
+//Borra pedidos desde administracion
+async function DeletePedido(){
+  try {
+    
+  } catch (error) {
+    
+  }
+}
 //Leer usuario por mail
 async function GetUserByMail(req, res) {
   console.log(req);
